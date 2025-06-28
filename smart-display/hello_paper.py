@@ -8,7 +8,8 @@ from PIL import Image, ImageDraw, ImageFont
 
 path = '/home/pi/e-Paper/RaspberryPi_JetsonNano/python/lib'
 
-sys.path.append(path)
+if os.path.exists(path):
+    sys.path.append(path)
 
 # Import the Waveshare library for 5.83inch display
 from waveshare_epd import epd5in83_V2 as epd5in83
@@ -48,13 +49,12 @@ def main():
             font_small = ImageFont.load_default()
         
         # Draw text on the image
-        draw.text((50, 50), "Hello World!", font=font_large, fill=0)  # 0 for black
-        draw.text((50, 120), "Waveshare 5.83\" E-Paper Display", font=font_medium, fill=0)
-        draw.text((50, 170), "Running on Raspberry Pi Zero W", font=font_small, fill=0)
+        draw.text((50, 50), "Hello MarQ!", font=font_large, fill=0)  # 0 for black
+        draw.text((50, 170), "Run by Jon", font=font_small, fill=0)
         
         # Draw some shapes for demonstration
         draw.rectangle([(50, 220), (598, 280)], outline=0, width=2)
-        draw.text((60, 235), "This is a rectangle border", font=font_small, fill=0)
+        draw.text((60, 235), "I'll put shit somewhere", font=font_small, fill=0)
         
         # Draw a circle
         draw.ellipse([(400, 300), (500, 400)], outline=0, width=3)
