@@ -6,12 +6,7 @@ import os
 import time
 from PIL import Image, ImageDraw, ImageFont
 
-sys.path.append('../RaspberryPi_JetsonNano/python/lib/waveshare_epd')
-
-# Add the lib directory to path
-libdir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'lib')
-if os.path.exists(libdir):
-    sys.path.append(libdir)
+sys.path.append('e-Paper/RaspberryPi_JetsonNano/python/lib/waveshare_epd')
 
 # Import the Waveshare library for 5.83inch display
 import epd5in83_V2 as epd5in83
