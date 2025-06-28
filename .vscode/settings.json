@@ -1,5 +1,6 @@
 {
     "python.analysis.extraPaths": [
-        "./RaspberryPi_JetsonNano/python/lib/waveshare_epd"
+        "./RaspberryPi_JetsonNano/python/lib/waveshare_epd",
+        "./E-paper_Separate_Program/10.85inch_e-Paper/RaspberryPi/python/lib"
     ]
 }

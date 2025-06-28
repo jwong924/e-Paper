@@ -18,7 +18,7 @@ def main():
         print("Initializing E-Paper Display...")
         
         # Initialize the display
-        epd = epd5in83.epd5in83()
+        epd = epd5in83.EPD()
         epd.init()
         
         # Get display dimensions
