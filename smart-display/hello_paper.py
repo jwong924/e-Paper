@@ -6,6 +6,8 @@ import os
 import time
 from PIL import Image, ImageDraw, ImageFont
 
+sys.path.append('../RaspberryPi_JetsonNano/python/lib/waveshare_epd')
+
 # Add the lib directory to path
 libdir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'lib')
 if os.path.exists(libdir):
