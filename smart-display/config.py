@@ -8,12 +8,15 @@ DISPLAY_HEIGHT = 448
 UPDATE_INTERVAL = 30  # minutes
 
 # API Keys (use environment variables for security)
-WEATHER_API_KEY = os.getenv('OPENWEATHER_API_KEY', 'your_api_key_here')
-NEWS_API_KEY = os.getenv('NEWS_API_KEY', 'your_news_api_key_here')
+GOOGLE_MAPS_API_KEY = os.getenv('GOOGLE_MAPS_API_KEY')
+WEATHER_API_KEY = os.getenv('OPENWEATHER_API_KEY')
+NEWS_API_KEY = os.getenv('NEWS_API_KEY')
 
 # Location settings
-CITY = os.getenv('DISPLAY_CITY', 'London')
-COUNTRY_CODE = os.getenv('COUNTRY_CODE', 'GB')
+LOCATION_PARAMS = {
+    'postalcode' : '80204',
+    'country' : 'US'
+}
 
 # Font paths
 FONT_DIR = Path('/usr/share/fonts/truetype/dejavu')
@@ -28,11 +31,3 @@ FONT_SIZES = {
     'medium': 18,
     'small': 14,
 }
-
-# Logging settings
-LOG_LEVEL = 'INFO'
-LOG_FILE = '/var/log/smart_display.log'
-
-# Cache settings
-CACHE_DIR = Path.home() / '.smart_display_cache'
-CACHE_DURATION = 10  # minutes

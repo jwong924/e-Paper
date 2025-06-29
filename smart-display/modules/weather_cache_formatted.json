@@ -1,0 +1,174 @@
+{
+   "timestamp": "2025-06-29T09:24:28.847912",
+   "location": "80204, Denver, Colorado, United States",
+   "timezone": "America/Denver",
+   "meta": {
+      "coordinates": "39.74471, -105.02203",
+      "temperature_unit": "fahrenheit",
+      "wind_speed_unit": "mph",
+      "precipitation_unit": "inch"
+   },
+   "current": {
+      "data": {
+         "datetime": "2025-06-29T09:15",
+         "date": "2025-06-29",
+         "time": "09:15",
+         "day": "Sunday",
+         "temperature": 77.7,
+         "wind_speed": 9.4,
+         "precipitation": null
+      },
+      "units": {
+         "time": "iso8601",
+         "interval": "seconds",
+         "temperature": "\u00b0F",
+         "windspeed": "mp/h",
+         "winddirection": "\u00b0",
+         "is_day": "",
+         "weathercode": "wmo code"
+      }
+   },
+   "hourly": {
+      "data": [
+         {
+            "datetime": "2025-06-29T10:00",
+            "date": "2025-06-29",
+            "time": "10:00",
+            "day": "Sunday",
+            "apparent_temperature": 76.0,
+            "cloud_cover": 0,
+            "wind_speed": 8.6,
+            "precipitation_probability": 0,
+            "precipitation": 0.0,
+            "snowfall": 0.0,
+            "snow_depth": 0.0,
+            "visibility": 212270.344,
+            "uv_index": 5.1
+         },
+         {
+            "datetime": "2025-06-29T11:00",
+            "date": "2025-06-29",
+            "time": "11:00",
+            "day": "Sunday",
+            "apparent_temperature": 79.9,
+            "cloud_cover": 0,
+            "wind_speed": 10.0,
+            "precipitation_probability": 0,
+            "precipitation": 0.0,
+            "snowfall": 0.0,
+            "snow_depth": 0.0,
+            "visibility": 236548.562,
+            "uv_index": 6.75
+         },
+         {
+            "datetime": "2025-06-29T12:00",
+            "date": "2025-06-29",
+            "time": "12:00",
+            "day": "Sunday",
+            "apparent_temperature": 83.2,
+            "cloud_cover": 0,
+            "wind_speed": 10.9,
+            "precipitation_probability": 0,
+            "precipitation": 0.0,
+            "snowfall": 0.0,
+            "snow_depth": 0.0,
+            "visibility": 239829.391,
+            "uv_index": 7.95
+         },
+         {
+            "datetime": "2025-06-29T13:00",
+            "date": "2025-06-29",
+            "time": "13:00",
+            "day": "Sunday",
+            "apparent_temperature": 87.3,
+            "cloud_cover": 0,
+            "wind_speed": 7.9,
+            "precipitation_probability": 2,
+            "precipitation": 0.0,
+            "snowfall": 0.0,
+            "snow_depth": 0.0,
+            "visibility": 251640.422,
+            "uv_index": 8.6
+         }
+      ],
+      "units": {
+         "time": "iso8601",
+         "apparent_temperature": "\u00b0F",
+         "cloud_cover": "%",
+         "precipitation": "inch",
+         "snowfall": "inch",
+         "precipitation_probability": "%",
+         "weather_code": "wmo code",
+         "snow_depth": "ft",
+         "visibility": "ft",
+         "uv_index": "",
+         "wind_speed_10m": "mp/h"
+      }
+   },
+   "daily": {
+      "data": [
+         {
+            "datetime": "2025-06-29",
+            "date": "2025-06-29",
+            "day": "Sunday",
+            "apparent_temperature_max": 89.7,
+            "apparent_temperature_min": 55.4,
+            "apparent_temperature_mean": 70.3,
+            "precipitation_sum": 0.067,
+            "snowfall_sum": 0.0,
+            "precipitation_hours": 2.0,
+            "precipitation_probability_mean": 4,
+            "weather_code": 55,
+            "sunrise": "2025-06-29T05:35",
+            "sunset": "2025-06-29T20:32",
+            "uv_index_max": 8.6
+         },
+         {
+            "datetime": "2025-06-30",
+            "date": "2025-06-30",
+            "day": "Monday",
+            "apparent_temperature_max": 85.4,
+            "apparent_temperature_min": 54.4,
+            "apparent_temperature_mean": 69.0,
+            "precipitation_sum": 0.0,
+            "snowfall_sum": 0.0,
+            "precipitation_hours": 0.0,
+            "precipitation_probability_mean": 8,
+            "weather_code": 3,
+            "sunrise": "2025-06-30T05:35",
+            "sunset": "2025-06-30T20:32",
+            "uv_index_max": 8.65
+         },
+         {
+            "datetime": "2025-07-01",
+            "date": "2025-07-01",
+            "day": "Tuesday",
+            "apparent_temperature_max": 93.0,
+            "apparent_temperature_min": 62.9,
+            "apparent_temperature_mean": 75.1,
+            "precipitation_sum": 0.0,
+            "snowfall_sum": 0.0,
+            "precipitation_hours": 0.0,
+            "precipitation_probability_mean": 9,
+            "weather_code": 3,
+            "sunrise": "2025-07-01T05:36",
+            "sunset": "2025-07-01T20:32",
+            "uv_index_max": 7.95
+         }
+      ],
+      "units": {
+         "time": "iso8601",
+         "apparent_temperature_max": "\u00b0F",
+         "apparent_temperature_min": "\u00b0F",
+         "apparent_temperature_mean": "\u00b0F",
+         "precipitation_sum": "inch",
+         "snowfall_sum": "inch",
+         "precipitation_hours": "h",
+         "precipitation_probability_mean": "%",
+         "weather_code": "wmo code",
+         "sunrise": "iso8601",
+         "sunset": "iso8601",
+         "uv_index_max": ""
+      }
+   }
+}

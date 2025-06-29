@@ -15,21 +15,21 @@ import config
 from location_coordinates import get_location_data
 
 # Constants
-OPEN_METEO_URL = "https://api.open-meteo.com/v1/forecast"
+OPEN_METEO_URL = "https://air-quality-api.open-meteo.com/v1/air-quality"
 logger = logging.getLogger(__name__)
 
 
-def save_weather_cache(weather_data, cache_file):
+def save_air_quality_cache(air_quality, cache_file):
     """Save weather cache data to file."""
     try:
         with open(cache_file, 'w') as f:
-            json.dump(weather_data, f, indent=3)
+            json.dump(air_quality, f, indent=3)
         logger.info(f"Weather cache saved to {cache_file}")
     except IOError as e:
         logger.error(f"Could not save weather cache file: {e}")
 
 
-def get_weather_data(location_data):    
+def get_air_quality_data(location_data):    
     if not location_data.get('lat') and location_data.get('lon'):
         raise ValueError("Could not get location coordinates")
     
@@ -45,15 +45,10 @@ def get_weather_data(location_data):
     
     # Prepare Open-Meteo API parameters
     # Freedom Units
-    weather_params = {
+    air_quality_params = {
         'latitude': lat,
         'longitude': lon,
-        'hourly': 'apparent_temperature,cloud_cover,precipitation,snowfall,precipitation_probability,weather_code,snow_depth,visibility,uv_index,wind_speed_10m',
-        'current_weather': 'true',
-        'daily': 'apparent_temperature_max,apparent_temperature_min,apparent_temperature_mean,precipitation_sum,snowfall_sum,precipitation_hours,precipitation_probability_mean,weather_code,sunrise,sunset,uv_index_max',
-        'temperature_unit': 'fahrenheit',
-        'wind_speed_unit': 'mph',
-        'precipitation_unit': 'inch',
+        'hourly': 'pm10,pm2_5,pm10_average,pm2_5_average,pm10_sum,pm2_5_sum,pm10_sum_24h,pm2_5_sum_24h,pm10_sum_1h,pm2_5_sum_1h,pm10_sum_1h_avg,pm2_5_sum_1h_avg,pm10_sum_24h_avg,pm2_5_sum_24h_avg,pm10_sum_1h_max,pm2_5_sum_1h_max,pm10_sum_24h_max,pm2_5_sum_24h_max,pm10_sum_1h_max_24h,pm2_5_sum_1h_max_24h,pm10_sum_1h_max_1h,pm2_5_sum_1h_max_1h,pm10_sum_24h_max_24h,pm2_5_sum_24h_max_24h,pm10_sum_1h_max_1h_avg,pm2_5_sum_1h_max_1h_avg,pm10_sum_24h_max_24h_avg,pm2_5_sum_24h_max_24h_avg,pm10_sum_1h_max_1h_max,pm2_5_sum_1h_max_1h_max,pm10_sum_24h_max_24h_max,pm2_5_sum_24h_max_24h_max,pm10_sum_1h_max_1h_max_24h,pm2_5_sum_1h_max_1h_max_24h,pm10_sum_24h_max_24h_max_24h,pm2_5_sum_24h_max_24h_max_24h,pm10_sum_1h_max_1h_max_1h,pm2_5_sum_1h_max_1h_max_1h,pm10_sum_24h_max_24h_max_24h,pm2_5_sum_24h_max_24h_max_24h,pm10_sum_1h_max_1h_max_1h_avg,pm2_5_sum_1h_max_1h_max_1h_avg,pm10_sum_24h_max_24h_max_24h_avg,pm2_5_sum_24h_max_24h_max_24h_avg,pm10_sum_1h_max_1h_max_1h_max,pm2_5_sum_1h_mauto',
         'timezone': 'auto',
         'forecast_days': 3
     }
@@ -61,7 +56,7 @@ def get_weather_data(location_data):
     logger.info("Making Open-Meteo API request...")
     
     try:
-        response = requests.get(OPEN_METEO_URL, params=weather_params, timeout=10)
+        response = requests.get(OPEN_METEO_URL, params=air_quality_params, timeout=10)
         response.raise_for_status()
         
         # Log response for debugging
