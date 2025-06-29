@@ -176,26 +176,26 @@ class WeatherAPI:
         )
     
     def _get_weather_condition(self, code: int) -> Tuple[str, str]:
-        """Convert weather code to condition and icon"""
+        """Convert weather code to condition and ASCII-safe icon"""
         weather_codes = {
-            0: ("Clear", "☀"),
-            1: ("Mostly Clear", "🌤"),
-            2: ("Partly Cloudy", "⛅"),
-            3: ("Overcast", "☁"),
-            45: ("Foggy", "🌫"),
-            48: ("Rime Fog", "🌫"),
-            51: ("Light Drizzle", "🌦"),
-            53: ("Drizzle", "🌦"),
-            55: ("Heavy Drizzle", "🌦"),
-            61: ("Light Rain", "🌧"),
-            63: ("Rain", "🌧"),
-            65: ("Heavy Rain", "🌧"),
-            71: ("Light Snow", "❄"),
-            73: ("Snow", "❄"),
-            75: ("Heavy Snow", "❄"),
-            95: ("Thunderstorm", "⛈"),
+            0: ("Clear", "SUN"),
+            1: ("Mostly Clear", "SUN"),
+            2: ("Partly Cloudy", "P.CLD"),
+            3: ("Overcast", "CLOUD"),
+            45: ("Foggy", "FOG"),
+            48: ("Rime Fog", "FOG"),
+            51: ("Light Drizzle", "DRZL"),
+            53: ("Drizzle", "DRZL"),
+            55: ("Heavy Drizzle", "DRZL"),
+            61: ("Light Rain", "RAIN"),
+            63: ("Rain", "RAIN"),
+            65: ("Heavy Rain", "RAIN"),
+            71: ("Light Snow", "SNOW"),
+            73: ("Snow", "SNOW"),
+            75: ("Heavy Snow", "SNOW"),
+            95: ("Thunderstorm", "STORM"),
         }
-        return weather_codes.get(code, ("Unknown", "❓"))
+        return weather_codes.get(code, ("Unknown", "?"))
     
     def _get_wind_direction(self, degrees: float) -> str:
         """Convert wind direction degrees to compass direction"""
@@ -223,7 +223,7 @@ class WeatherAPI:
         return WeatherData(
             current_temp=72.0,
             condition="Partly Cloudy",
-            condition_icon="⛅",
+            condition_icon="P.CLD",
             location="Denver, CO",
             datetime_str=datetime.now().strftime("%A, %B %d • %I:%M %p"),
             wind_speed=12.0,
@@ -285,7 +285,7 @@ class CalendarManager:
             title=event_dict["title"],
             location=event_dict["location"],
             weather_temp=75.0,  # Would be from hourly forecast
-            weather_icon="⛅",
+            weather_icon="P.CLD",
             rain_chance=15,
             is_outdoor=event_dict["is_outdoor"]
         )
@@ -300,16 +300,23 @@ class DisplayRenderer:
         
         # Try to load fonts, fall back to default if not available
         try:
-            self.font_small = ImageFont.truetype("/usr/share/fonts/truetype/arial.ttf", 10)
-            self.font_normal = ImageFont.truetype("/usr/share/fonts/truetype/arial.ttf", 11)
-            self.font_large = ImageFont.truetype("/usr/share/fonts/truetype/arial.ttf", 16)
-            self.font_xlarge = ImageFont.truetype("/usr/share/fonts/truetype/arial.ttf", 24)
+            self.font_small = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 10)
+            self.font_normal = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 11)
+            self.font_large = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 16)
+            self.font_xlarge = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 24)
         except:
-            # Fall back to default font
-            self.font_small = ImageFont.load_default()
-            self.font_normal = ImageFont.load_default()
-            self.font_large = ImageFont.load_default()
-            self.font_xlarge = ImageFont.load_default()
+            try:
+                # Try alternative font paths
+                self.font_small = ImageFont.truetype("arial.ttf", 10)
+                self.font_normal = ImageFont.truetype("arial.ttf", 11)
+                self.font_large = ImageFont.truetype("arial.ttf", 16)
+                self.font_xlarge = ImageFont.truetype("arial.ttf", 24)
+            except:
+                # Fall back to default font
+                self.font_small = ImageFont.load_default()
+                self.font_normal = ImageFont.load_default()
+                self.font_large = ImageFont.load_default()
+                self.font_xlarge = ImageFont.load_default()
     
     def render_display(self, weather_data: WeatherData, events: List[EventData]) -> Image.Image:
         """Render the complete display layout"""
@@ -419,9 +426,9 @@ class DisplayRenderer:
         
         # Mock daily events and weather
         daily_data = [
-            ("Wed\n29", "Doctor (10 AM)\nLunch Meeting (12:30)\nGym Session (6 PM)", "79°/55°\n☀ 10%"),
-            ("Thu\n30", "Client Presentation (2 PM)\nHappy Hour (5:30 PM)", "75°/52°\n🌧 65%"),
-            ("Fri\n1", "Trip Departure (4 PM)\nLight schedule", "71°/49°\n⛅ 30%")
+            ("Wed\n29", "Doctor (10 AM)\nLunch Meeting (12:30)\nGym Session (6 PM)", "79/55F\nSUN 10%"),
+            ("Thu\n30", "Client Presentation (2 PM)\nHappy Hour (5:30 PM)", "75/52F\nRAIN 65%"),
+            ("Fri\n1", "Trip Departure (4 PM)\nLight schedule", "71/49F\nP.CLD 30%")
         ]
         
         y_pos = 115
