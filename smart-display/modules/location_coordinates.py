@@ -8,10 +8,6 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import config
 
 CACHE_FILE = "location_coordinates_cache.json"
-url = "https://nominatim.openstreetmap.org/search"
-headers = {
-    'User-Agent' : 'smart-display/1.0'  
-}
 logger = logging.getLogger(__name__)
 
 def load_cache():
@@ -57,19 +53,18 @@ def create_cache_key(params):
         logger.error("Cache key requires either postalcode or city")
         raise ValueError("Cache key requires either postalcode or city")
 
-def get_location_data(location_params=None):
-    # Use provided params or fall back to config
-    if location_params is None:
-        params = config.LOCATION_PARAMS.copy()
-    else:
-        params = location_params.copy()
-    
-    # Add required API parameters
+def get_location_data():
+    url = "https://nominatim.openstreetmap.org/search"
+    headers = {
+        'User-Agent' : 'smart-display/1.0'  
+    }
+    # Use parameters from config.py
+    params = config.LOCATION_PARAMS.copy()
     params.update({
         'format': 'jsonv2',
-        'limit': 1
+        'limit': '1'
     })
-    
+
     # Load existing cache
     cache = load_cache()
     cache_key = create_cache_key(params)
@@ -102,7 +97,7 @@ def get_location_data(location_params=None):
         return data[0]  # Return first result
 
 def main():
-    """Main function for standalone execution"""
+    """Main function for standalone execution"""    
     try:
         result = get_location_data()
         if result:

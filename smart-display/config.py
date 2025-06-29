@@ -15,7 +15,7 @@ NEWS_API_KEY = os.getenv('NEWS_API_KEY')
 # Location settings
 LOCATION_PARAMS = {
     'postalcode' : '80204',
-    'country' : 'US'
+    'country' : 'United States'
 }
 
 # Font paths

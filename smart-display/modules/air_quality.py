@@ -48,7 +48,8 @@ def get_air_quality_data(location_data):
     air_quality_params = {
         'latitude': lat,
         'longitude': lon,
-        'hourly': 'pm10,pm2_5,pm10_average,pm2_5_average,pm10_sum,pm2_5_sum,pm10_sum_24h,pm2_5_sum_24h,pm10_sum_1h,pm2_5_sum_1h,pm10_sum_1h_avg,pm2_5_sum_1h_avg,pm10_sum_24h_avg,pm2_5_sum_24h_avg,pm10_sum_1h_max,pm2_5_sum_1h_max,pm10_sum_24h_max,pm2_5_sum_24h_max,pm10_sum_1h_max_24h,pm2_5_sum_1h_max_24h,pm10_sum_1h_max_1h,pm2_5_sum_1h_max_1h,pm10_sum_24h_max_24h,pm2_5_sum_24h_max_24h,pm10_sum_1h_max_1h_avg,pm2_5_sum_1h_max_1h_avg,pm10_sum_24h_max_24h_avg,pm2_5_sum_24h_max_24h_avg,pm10_sum_1h_max_1h_max,pm2_5_sum_1h_max_1h_max,pm10_sum_24h_max_24h_max,pm2_5_sum_24h_max_24h_max,pm10_sum_1h_max_1h_max_24h,pm2_5_sum_1h_max_1h_max_24h,pm10_sum_24h_max_24h_max_24h,pm2_5_sum_24h_max_24h_max_24h,pm10_sum_1h_max_1h_max_1h,pm2_5_sum_1h_max_1h_max_1h,pm10_sum_24h_max_24h_max_24h,pm2_5_sum_24h_max_24h_max_24h,pm10_sum_1h_max_1h_max_1h_avg,pm2_5_sum_1h_max_1h_max_1h_avg,pm10_sum_24h_max_24h_max_24h_avg,pm2_5_sum_24h_max_24h_max_24h_avg,pm10_sum_1h_max_1h_max_1h_max,pm2_5_sum_1h_mauto',
+        'current': 'us_aqi,alder_pollen,birch_pollen,grass_pollen,mugwort_pollen,olive_pollen,ragweed_pollen',
+        'hourly': 'alder_pollen,birch_pollen,grass_pollen,mugwort_pollen,olive_pollen,ragweed_pollen,pm2_5,pm10',
         'timezone': 'auto',
         'forecast_days': 3
     }
@@ -60,39 +61,36 @@ def get_air_quality_data(location_data):
         response.raise_for_status()
         
         # Log response for debugging
-        logger.info(f"Weather API Response Status: {response.status_code}")
-        logger.info(f"Weather API Response Content Length: {len(response.text)}")
-        logger.debug(f"Weather API Response Content: {response.text}")
+        logger.info(f"Air Quality API Response Status: {response.status_code}")
+        logger.info(f"Air Quality API Response Content Length: {len(response.text)}")
+        logger.debug(f"Air Quality API Response Content: {response.text}")
         
         # Parse response
-        weather_data = response.json()
+        air_quality_data = response.json()
         
         # Add location info to weather data for context
-        weather_data['location_name'] = location_data.get('display_name')
-        weather_data['temperature_unit'] = weather_params['temperature_unit'],
-        weather_data['wind_speed_unit'] = weather_params['wind_speed_unit'],
-        weather_data['precipitation_unit'] = weather_params['precipitation_unit'],
+        air_quality_data['location_name'] = location_data.get('display_name')
         
         # Save to cache
-        save_weather_cache(weather_data, 'weather_cache_raw.json')
+        save_air_quality_cache(air_quality_data, 'air_quality_cache_raw.json')
         
-        logger.info("Weather data retrieved and cached successfully")
-        return weather_data
+        logger.info("Air Quality data retrieved and cached successfully")
+        return air_quality_data
         
     except requests.RequestException as e:
-        logger.error(f"Error making weather API request: {e}")
+        logger.error(f"Error making Air Quality API request: {e}")
         raise
     except json.JSONDecodeError as e:
-        logger.error(f"Error parsing weather API response: {e}")
+        logger.error(f"Error parsing Air Quality API response: {e}")
         raise
 
-def format_weather_data(weather_data):
-    hourly_data = weather_data.get('hourly', {})
-    daily_data = weather_data.get('daily', {})
-    current_data = weather_data.get('current_weather', {})
-    temperature_unit = weather_data.get("temperature_unit")[0]
-    wind_speed_unit = weather_data.get("wind_speed_unit")[0]
-    precipitation_unit = weather_data.get("precipitation_unit")[0]
+def format_air_quality_data(air_quality_data):
+    hourly_data = air_quality_data.get('hourly', {})
+    daily_data = air_quality_data.get('daily', {})
+    current_data = air_quality_data.get('current', {})
+    temperature_unit = air_quality_data.get("temperature_unit")[0]
+    wind_speed_unit = air_quality_data.get("wind_speed_unit")[0]
+    precipitation_unit = air_quality_data.get("precipitation_unit")[0]
 
     # Format Current Data
     logging.info(f"Formatting current data")
@@ -165,25 +163,25 @@ def format_weather_data(weather_data):
     # Final Format of Cache
     formatted_weather_data = {
         "timestamp": datetime.now().isoformat(),
-        "location": weather_data.get('location_name'),
-        "timezone": weather_data.get('timezone'),
+        "location": air_quality_data.get('location_name'),
+        "timezone": air_quality_data.get('timezone'),
         "meta":{
-            "coordinates": f"{weather_data.get('latitude', 'N/A')}, {weather_data.get('longitude', 'N/A')}",
+            "coordinates": f"{air_quality_data.get('latitude', 'N/A')}, {air_quality_data.get('longitude', 'N/A')}",
             "temperature_unit": temperature_unit,
             "wind_speed_unit": wind_speed_unit,
             "precipitation_unit": precipitation_unit
         },
         "current": {
             "data": formatted_current_data,
-            "units": weather_data.get('current_weather_units', {})
+            "units": air_quality_data.get('current_weather_units', {})
         },
         "hourly": {
             "data": formatted_hourly_data,
-            "units": weather_data.get('hourly_units', {})
+            "units": air_quality_data.get('hourly_units', {})
         },
         "daily": {
             "data": formatted_daily_data,
-            "units": weather_data.get('daily_units', {})
+            "units": air_quality_data.get('daily_units', {})
         }
     }
     
@@ -198,13 +196,13 @@ def main():
 
         # Start Weather Retrieval
         logger.info("Starting weather data retrieval...")
-        weather_data = get_weather_data(location_data)
-        formatted_weather_data = format_weather_data(weather_data)
+        air_quality_data = get_air_quality_data(location_data)
+        formatted_air_quality_data = format_air_quality_data(air_quality_data)
 
-        if formatted_weather_data:
+        if formatted_air_quality_data:
             # Print formatted summary
-            save_weather_cache(formatted_weather_data, 'weather_cache_formatted.json')
-            logging.info(f"Formatted weather data saved to: weather_cache_formatted.json")
+            save_air_quality_cache(formatted_air_quality_data, 'air_quality_cache_formatted.json')
+            logging.info(f"Formatted air quality data saved to: air_quality_cache_formatted.json")
             print("=" * 60)
             print("Formatted weather data saved to: weather_cache_formatted.json")
             print("=" * 60)

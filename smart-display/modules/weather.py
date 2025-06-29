@@ -49,13 +49,14 @@ def get_weather_data(location_data):
         'latitude': lat,
         'longitude': lon,
         'hourly': 'apparent_temperature,cloud_cover,precipitation,snowfall,precipitation_probability,weather_code,snow_depth,visibility,uv_index,wind_speed_10m',
-        'current_weather': 'true',
+        'current': 'temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,rain,snowfall,showers,weather_code,cloud_cover,pressure_msl,surface_pressure,wind_speed_10m,wind_direction_10m,wind_gusts_10m',
         'daily': 'apparent_temperature_max,apparent_temperature_min,apparent_temperature_mean,precipitation_sum,snowfall_sum,precipitation_hours,precipitation_probability_mean,weather_code,sunrise,sunset,uv_index_max',
         'temperature_unit': 'fahrenheit',
         'wind_speed_unit': 'mph',
         'precipitation_unit': 'inch',
         'timezone': 'auto',
-        'forecast_days': 3
+        'forecast_days': 3,
+        'forecast_hours': 4
     }
     
     logger.info("Making Open-Meteo API request...")
@@ -94,7 +95,7 @@ def get_weather_data(location_data):
 def format_weather_data(weather_data):
     hourly_data = weather_data.get('hourly', {})
     daily_data = weather_data.get('daily', {})
-    current_data = weather_data.get('current_weather', {})
+    current_data = weather_data.get('current', {})
     temperature_unit = weather_data.get("temperature_unit")[0]
     wind_speed_unit = weather_data.get("wind_speed_unit")[0]
     precipitation_unit = weather_data.get("precipitation_unit")[0]
@@ -107,8 +108,9 @@ def format_weather_data(weather_data):
         "date": current_dt.date().strftime("%Y-%m-%d"),
         "time": current_dt.time().strftime("%H:%M"),
         "day": current_dt.strftime("%A"),
-        "temperature": current_data.get('temperature'),
-        "wind_speed": current_data.get('windspeed'),
+        "weather_code": current_data.get('weather_code'),
+        "temperature": current_data.get('apparent_temperature'),
+        "wind_speed": current_data.get('wind_speed_10m'),
         "precipitation": current_data.get('precipitation')
     }
 
@@ -116,38 +118,31 @@ def format_weather_data(weather_data):
     logging.info(f"Formatting hourly data")
     formatted_hourly_data = []
     i = 0
-    for index, datetime_str in enumerate(hourly_data.get('time', [])):
-        if i > 3:
-            break
+    for index, datetime_str in enumerate(hourly_data.get('time')):
+
         hourly_dt = datetime.fromisoformat(datetime_str)
-        if hourly_dt > current_dt + timedelta(minutes=25):
-            hour_data = {
-                "datetime": datetime_str,
-                "date": hourly_dt.date().strftime("%Y-%m-%d"),
-                "time": hourly_dt.time().strftime("%H:%M"),
-                "day": hourly_dt.strftime("%A"),
-                "apparent_temperature": hourly_data.get('apparent_temperature', [])[index],
-                "cloud_cover": hourly_data.get('cloud_cover', [])[index],
-                "wind_speed": hourly_data.get('wind_speed_10m', [])[index],
-                "precipitation_probability": hourly_data.get('precipitation_probability', [])[index],
-                "precipitation": hourly_data.get('precipitation', [])[index],
-                "snowfall": hourly_data.get('snowfall', [])[index],
-                "snow_depth": hourly_data.get('snow_depth', [])[index],
-                "visibility": hourly_data.get('visibility', [])[index],
-                "uv_index": hourly_data.get('uv_index', [])[index]
-            }
-            formatted_hourly_data.append(hour_data)
-            i += 1
-        else:
-            logging.info(f"Skipping hourly data: {datetime_str} because it's in the past")
-            pass
-
-
+        hour_data = {
+            "datetime": datetime_str,
+            "date": hourly_dt.date().strftime("%Y-%m-%d"),
+            "time": hourly_dt.time().strftime("%H:%M"),
+            "day": hourly_dt.strftime("%A"),
+            "weather_code": hourly_data.get('weather_code')[index],
+            "apparent_temperature": hourly_data.get('apparent_temperature')[index],
+            "cloud_cover": hourly_data.get('cloud_cover')[index],
+            "wind_speed": hourly_data.get('wind_speed_10m')[index],
+            "precipitation_probability": hourly_data.get('precipitation_probability')[index],
+            "precipitation": hourly_data.get('precipitation')[index],
+            "snowfall": hourly_data.get('snowfall')[index],
+            "snow_depth": hourly_data.get('snow_depth')[index],
+            "visibility": hourly_data.get('visibility')[index],
+            "uv_index": hourly_data.get('uv_index')[index]
+        }
+        formatted_hourly_data.append(hour_data)
 
     # Format Daily Data
     logging.info(f"Formatting daily data")
     formatted_daily_data = []
-    for index, datetime_str in enumerate(daily_data.get('time', [])):
+    for index, datetime_str in enumerate(daily_data.get('time')):
         daily_dt = datetime.fromisoformat(datetime_str)
         day_data = {
             "datetime": datetime_str,
@@ -180,7 +175,7 @@ def format_weather_data(weather_data):
         },
         "current": {
             "data": formatted_current_data,
-            "units": weather_data.get('current_weather_units', {})
+            "units": weather_data.get('current_units', {})
         },
         "hourly": {
             "data": formatted_hourly_data,
