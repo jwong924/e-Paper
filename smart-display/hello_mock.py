@@ -13,6 +13,11 @@ from typing import Dict, List, Optional, Tuple
 from dataclasses import dataclass
 from PIL import Image, ImageDraw, ImageFont
 import schedule
+import os
+path = '/home/pi/e-Paper/RaspberryPi_JetsonNano/python/lib'
+
+if os.path.exists(path):
+    sys.path.append(path)
 
 # Configuration
 @dataclass
@@ -593,7 +598,7 @@ class SmartDisplayManager:
         try:
             # Option 1: Waveshare 5.83" V2 (600x448 - perfect match!)
             if hasattr(self, 'epd_type') and self.epd_type == '5in83_V2':
-                import lib.waveshare_epd.epd5in83_V2 as epd5in83_V2
+                import waveshare_epd.epd5in83_V2 as epd5in83_V2
                 epd = epd5in83_V2.EPD()
                 epd.init()
                 epd.display(epd.getbuffer(image))
@@ -602,7 +607,7 @@ class SmartDisplayManager:
             
             # Option 2: Waveshare 5.83" V1 
             elif hasattr(self, 'epd_type') and self.epd_type == '5in83':
-                import lib.waveshare_epd.epd5in83 as epd5in83
+                import waveshare_epd.epd5in83 as epd5in83
                 epd = epd5in83.EPD()
                 epd.init()
                 epd.display(epd.getbuffer(image))
@@ -611,7 +616,7 @@ class SmartDisplayManager:
             
             # Option 3: Waveshare 7.5" V2 
             elif hasattr(self, 'epd_type') and self.epd_type == '7in5_V2':
-                import lib.waveshare_epd.epd7in5_V2 as epd7in5_V2
+                import waveshare_epd.epd7in5_V2 as epd7in5_V2
                 epd = epd7in5_V2.EPD()
                 epd.init()
                 epd.display(epd.getbuffer(image))
@@ -620,7 +625,7 @@ class SmartDisplayManager:
             
             # Option 4: Waveshare 7.5" V1
             elif hasattr(self, 'epd_type') and self.epd_type == '7in5':
-                import lib.waveshare_epd.epd7in5 as epd7in5
+                import waveshare_epd.epd7in5 as epd7in5
                 epd = epd7in5.EPD()
                 epd.init()
                 epd.display(epd.getbuffer(image))
