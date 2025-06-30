@@ -479,11 +479,14 @@ class DisplayRenderer:
 class SmartDisplayManager:
     """Main display manager that coordinates all components"""
     
-    def __init__(self, config_path: str = "config.json"):
+    def __init__(self, config_path: str = "config.json", epd_type: str = None):
         self.config = self._load_config(config_path)
         self.weather_api = WeatherAPI(self.config)
         self.calendar_manager = CalendarManager(self.config)
         self.renderer = DisplayRenderer(self.config)
+        
+        # Set display type for hardware integration
+        self.epd_type = epd_type or self.config.__dict__.get('epd_type', '5in83_V2')
         
         # Set up logging
         logging.basicConfig(
@@ -539,6 +542,10 @@ class SmartDisplayManager:
             
             # Also save as main file
             image.save('display_output.png')
+            
+            # Send to actual Waveshare display if available
+            self._send_to_display(image)
+            
             logging.info(f"Display updated - saved as {filename}")
             
         except Exception as e:
@@ -574,8 +581,8 @@ class SmartDisplayManager:
             
             logging.info(f"Full display update completed - saved as {filename}")
             
-            # TODO: Send to actual Waveshare display
-            # self._send_to_display(image)
+            # Send to actual Waveshare display if available
+            self._send_to_display(image)
             
         except Exception as e:
             logging.error(f"Error updating display: {e}")
@@ -583,14 +590,71 @@ class SmartDisplayManager:
     
     def _send_to_display(self, image: Image.Image):
         """Send image to Waveshare e-ink display"""
-        # This would use the Waveshare library
-        # Example:
-        # import waveshare_epd
-        # epd = waveshare_epd.epd7in5_V2()
-        # epd.init()
-        # epd.display(epd.getbuffer(image))
-        # epd.sleep()
-        pass
+        try:
+            # Option 1: Waveshare 5.83" V2 (600x448 - perfect match!)
+            if hasattr(self, 'epd_type') and self.epd_type == '5in83_V2':
+                import lib.waveshare_epd.epd5in83_V2 as epd5in83_V2
+                epd = epd5in83_V2.EPD()
+                epd.init()
+                epd.display(epd.getbuffer(image))
+                epd.sleep()
+                logging.info("Image sent to Waveshare 5.83\" V2 display")
+            
+            # Option 2: Waveshare 5.83" V1 
+            elif hasattr(self, 'epd_type') and self.epd_type == '5in83':
+                import lib.waveshare_epd.epd5in83 as epd5in83
+                epd = epd5in83.EPD()
+                epd.init()
+                epd.display(epd.getbuffer(image))
+                epd.sleep()
+                logging.info("Image sent to Waveshare 5.83\" V1 display")
+            
+            # Option 3: Waveshare 7.5" V2 
+            elif hasattr(self, 'epd_type') and self.epd_type == '7in5_V2':
+                import lib.waveshare_epd.epd7in5_V2 as epd7in5_V2
+                epd = epd7in5_V2.EPD()
+                epd.init()
+                epd.display(epd.getbuffer(image))
+                epd.sleep()
+                logging.info("Image sent to Waveshare 7.5\" V2 display")
+            
+            # Option 4: Waveshare 7.5" V1
+            elif hasattr(self, 'epd_type') and self.epd_type == '7in5':
+                import lib.waveshare_epd.epd7in5 as epd7in5
+                epd = epd7in5.EPD()
+                epd.init()
+                epd.display(epd.getbuffer(image))
+                epd.sleep()
+                logging.info("Image sent to Waveshare 7.5\" V1 display")
+            
+            # Option 5: Generic/Auto-detect (defaults to 5.83" V2)
+            else:
+                # Try to import the 5.83" V2 driver first (perfect resolution match)
+                try:
+                    from waveshare_epd import epd5in83_V2
+                    epd = epd5in83_V2.EPD()
+                    epd.init()
+                    epd.display(epd.getbuffer(image))
+                    epd.sleep()
+                    logging.info("Image sent to Waveshare 5.83\" V2 display (auto-detected)")
+                except ImportError:
+                    try:
+                        # Fallback to 7.5" V2
+                        from waveshare_epd import epd7in5_V2
+                        epd = epd7in5_V2.EPD()
+                        epd.init()
+                        epd.display(epd.getbuffer(image))
+                        epd.sleep()
+                        logging.info("Image sent to Waveshare 7.5\" V2 display (fallback)")
+                    except ImportError:
+                        logging.warning("No Waveshare display driver found - saving to file instead")
+                        image.save('display_output.png')
+                        return
+                    
+        except Exception as e:
+            logging.error(f"Error sending to display: {e}")
+            logging.info("Falling back to file save")
+            image.save('display_output.png')
     
     def run_scheduler(self):
         """Run the display with scheduled updates"""
@@ -621,12 +685,23 @@ class SmartDisplayManager:
 if __name__ == "__main__":
     import sys
     
-    # Create display manager
-    display_manager = SmartDisplayManager()
+    # Parse command line arguments for display type
+    epd_type = None
+    continuous = False
     
-    # Check command line arguments
-    if len(sys.argv) > 1 and sys.argv[1] == "--continuous":
+    for arg in sys.argv[1:]:
+        if arg == "--continuous":
+            continuous = True
+        elif arg.startswith("--display="):
+            epd_type = arg.split("=")[1]
+    
+    # Create display manager
+    display_manager = SmartDisplayManager(epd_type=epd_type)
+    
+    if continuous:
         print("Starting continuous refresh mode...")
+        if epd_type:
+            print(f"Display type: {epd_type}")
         print("Press Ctrl+C to stop")
         try:
             display_manager.run_scheduler()
@@ -635,6 +710,12 @@ if __name__ == "__main__":
     else:
         print("Running single update (demo mode)...")
         print("Use --continuous flag for automatic refresh")
+        if epd_type:
+            print(f"Display type: {epd_type}")
+        else:
+            print("Use --display=MODEL to specify your Waveshare model")
+            print("Examples: --display=5in83_V2, --display=5in83, --display=7in5_V2")
+            print("Default: 5in83_V2 (600x448 perfect match)")
         display_manager.update_display()
         print("Demo complete! Check 'display_output.png' for results.")
         print("For continuous mode, run: python display_manager.py --continuous")
