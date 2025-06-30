@@ -515,10 +515,39 @@ class SmartDisplayManager:
         with open(config_path, 'w') as f:
             json.dump(config.__dict__, f, indent=2)
     
+    def update_display_with_time(self):
+        """Update display with current time (for demo purposes)"""
+        try:
+            logging.info("Quick time update...")
+            
+            # Use cached weather data, just update time
+            if self.weather_cache:
+                # Update the datetime string
+                self.weather_cache.datetime_str = datetime.now().strftime("%A, %B %d - %I:%M %p")
+            
+            # Get events (they're demo data, so always the same)
+            events = self.calendar_manager.fetch_events()
+            
+            # Render display
+            weather_data = self.weather_cache or self.weather_api.fetch_weather_data()
+            image = self.renderer.render_display(weather_data, events)
+            
+            # Save with timestamp for demo purposes
+            timestamp = datetime.now().strftime("%H%M%S")
+            filename = f'display_output_{timestamp}.png'
+            image.save(filename)
+            
+            # Also save as main file
+            image.save('display_output.png')
+            logging.info(f"Display updated - saved as {filename}")
+            
+        except Exception as e:
+            logging.error(f"Error in time update: {e}")
+    
     def update_display(self):
         """Main update function - fetches data and renders display"""
         try:
-            logging.info("Starting display update...")
+            logging.info("Starting full display update...")
             
             # Check if we need to update weather data
             now = datetime.now()
@@ -528,6 +557,8 @@ class SmartDisplayManager:
                 logging.info("Fetching fresh weather data...")
                 self.weather_cache = self.weather_api.fetch_weather_data()
                 self.last_weather_update = now
+            else:
+                logging.info("Using cached weather data...")
             
             # Fetch calendar events
             events = self.calendar_manager.fetch_events()
@@ -536,14 +567,19 @@ class SmartDisplayManager:
             image = self.renderer.render_display(self.weather_cache, events)
             
             # Save for testing (replace with actual e-ink display code)
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            filename = f'display_full_{timestamp}.png'
+            image.save(filename)
             image.save('display_output.png')
-            logging.info("Display updated successfully")
+            
+            logging.info(f"Full display update completed - saved as {filename}")
             
             # TODO: Send to actual Waveshare display
             # self._send_to_display(image)
             
         except Exception as e:
             logging.error(f"Error updating display: {e}")
+            raise
     
     def _send_to_display(self, image: Image.Image):
         """Send image to Waveshare e-ink display"""
@@ -559,24 +595,46 @@ class SmartDisplayManager:
     def run_scheduler(self):
         """Run the display with scheduled updates"""
         logging.info("Starting Smart Display Manager...")
+        logging.info(f"Refresh interval: {self.config.refresh_interval // 60} minutes")
         
-        # Schedule regular updates
-        schedule.every(self.config.refresh_interval // 60).minutes.do(self.update_display)
+        # Schedule regular updates (convert seconds to minutes)
+        update_minutes = max(1, self.config.refresh_interval // 60)
+        schedule.every(update_minutes).minutes.do(self.update_display)
+        
+        # For demo purposes, also update every 30 seconds to see changes
+        schedule.every(30).seconds.do(self.update_display_with_time)
         
         # Initial update
+        logging.info("Performing initial display update...")
         self.update_display()
         
         # Main loop
-        while True:
-            schedule.run_pending()
-            time.sleep(60)  # Check every minute
+        logging.info("Starting refresh loop...")
+        try:
+            while True:
+                schedule.run_pending()
+                time.sleep(1)  # Check every second for more responsive scheduling
+        except KeyboardInterrupt:
+            logging.info("Shutdown requested by user")
+            raise
 
 if __name__ == "__main__":
-    # Example usage
+    import sys
+    
+    # Create display manager
     display_manager = SmartDisplayManager()
     
-    # For testing, just run a single update
-    display_manager.update_display()
-    
-    # Uncomment to run with scheduler
-    # display_manager.run_scheduler()
+    # Check command line arguments
+    if len(sys.argv) > 1 and sys.argv[1] == "--continuous":
+        print("Starting continuous refresh mode...")
+        print("Press Ctrl+C to stop")
+        try:
+            display_manager.run_scheduler()
+        except KeyboardInterrupt:
+            print("\nDisplay manager stopped.")
+    else:
+        print("Running single update (demo mode)...")
+        print("Use --continuous flag for automatic refresh")
+        display_manager.update_display()
+        print("Demo complete! Check 'display_output.png' for results.")
+        print("For continuous mode, run: python display_manager.py --continuous")
