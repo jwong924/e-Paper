@@ -14,6 +14,7 @@ from dataclasses import dataclass
 from PIL import Image, ImageDraw, ImageFont
 import schedule
 import os
+import sys
 path = '/home/pi/e-Paper/RaspberryPi_JetsonNano/python/lib'
 
 if os.path.exists(path):
@@ -688,7 +689,6 @@ class SmartDisplayManager:
             raise
 
 if __name__ == "__main__":
-    import sys
     
     # Parse command line arguments for display type
     epd_type = None
