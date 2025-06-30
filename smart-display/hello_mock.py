@@ -71,50 +71,9 @@ class WeatherAPI:
         self.air_quality_url = "https://air-quality-api.open-meteo.com/v1"
         
     def fetch_weather_data(self) -> WeatherData:
-        """Fetch comprehensive weather data"""
-        try:
-            # Main weather data
-            weather_params = {
-                "latitude": self.config.location["lat"],
-                "longitude": self.config.location["lon"],
-                "current": [
-                    "temperature_2m", "weather_code", "wind_speed_10m",
-                    "wind_direction_10m", "uv_index"
-                ],
-                "hourly": [
-                    "temperature_2m", "weather_code", "precipitation_probability",
-                    "wind_speed_10m", "uv_index"
-                ],
-                "daily": [
-                    "temperature_2m_max", "temperature_2m_min", "weather_code",
-                    "precipitation_probability_max"
-                ],
-                "temperature_unit": "fahrenheit" if self.config.temperature_unit == "fahrenheit" else "celsius",
-                "wind_speed_unit": "mph",
-                "timezone": self.config.timezone,
-                "forecast_days": 7
-            }
-            
-            response = requests.get(f"{self.base_url}/forecast", params=weather_params)
-            response.raise_for_status()
-            weather_json = response.json()
-            
-            # Air quality data
-            air_params = {
-                "latitude": self.config.location["lat"],
-                "longitude": self.config.location["lon"],
-                "current": ["us_aqi", "pm2_5", "pm10"],
-                "hourly": ["alder_pollen", "birch_pollen", "grass_pollen", "ragweed_pollen"]
-            }
-            
-            air_response = requests.get(f"{self.air_quality_url}/air-quality", params=air_params)
-            air_json = air_response.json() if air_response.status_code == 200 else {}
-            
-            return self._process_weather_data(weather_json, air_json)
-            
-        except Exception as e:
-            logging.error(f"Error fetching weather data: {e}")
-            return self._get_dummy_weather_data()
+        """Return demo weather data (no API calls)"""
+        logging.info("Using demo weather data (no API calls)")
+        return self._get_demo_weather_data()
     
     def _process_weather_data(self, weather_json: Dict, air_json: Dict) -> WeatherData:
         """Process raw weather API response into structured data"""
@@ -218,8 +177,52 @@ class WeatherAPI:
             "ragweed": hourly_pollen.get("ragweed_pollen", [0] * 24)[current_hour] or 1
         }
     
-    def _get_dummy_weather_data(self) -> WeatherData:
-        """Return dummy data in case of API failure"""
+    def _get_demo_weather_data(self) -> WeatherData:
+        """Return comprehensive demo data that matches the mockup exactly"""
+        # Create realistic hourly forecast for today
+        current_hour = datetime.now().hour
+        hourly_forecast = []
+        
+        # Generate hourly data for next 24 hours
+        base_temps = [76, 75, 73, 70, 68, 65, 63, 61, 59, 58, 60, 65, 70, 75, 78, 79, 77, 75, 72, 70, 68, 66, 64, 62]
+        rain_chances = [15, 30, 35, 25, 20, 10, 5, 5, 5, 10, 15, 20, 25, 30, 25, 20, 15, 10, 8, 5, 3, 5, 8, 12]
+        weather_codes = [2, 2, 3, 3, 1, 1, 0, 0, 0, 1, 2, 2, 2, 3, 3, 2, 2, 2, 1, 1, 0, 0, 1, 1]
+        
+        for i in range(24):
+            hour_time = (datetime.now() + timedelta(hours=i)).strftime("%Y-%m-%dT%H:00")
+            hourly_forecast.append({
+                "time": hour_time,
+                "temperature": base_temps[i],
+                "weather_code": weather_codes[i],
+                "precipitation_probability": rain_chances[i],
+                "uv_index": max(0, 8 - abs(i - 12) * 0.8) if 6 <= (current_hour + i) % 24 <= 18 else 0
+            })
+        
+        # Create 3-day forecast
+        daily_forecast = [
+            {
+                "date": (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d"),
+                "temp_max": 79,
+                "temp_min": 55,
+                "weather_code": 0,  # Clear
+                "precipitation_probability": 10
+            },
+            {
+                "date": (datetime.now() + timedelta(days=2)).strftime("%Y-%m-%d"),
+                "temp_max": 75,
+                "temp_min": 52,
+                "weather_code": 63,  # Rain
+                "precipitation_probability": 65
+            },
+            {
+                "date": (datetime.now() + timedelta(days=3)).strftime("%Y-%m-%d"),
+                "temp_max": 71,
+                "temp_min": 49,
+                "weather_code": 2,  # Partly Cloudy
+                "precipitation_probability": 30
+            }
+        ]
+        
         return WeatherData(
             current_temp=72.0,
             condition="Partly Cloudy",
@@ -230,8 +233,8 @@ class WeatherAPI:
             wind_direction="SW",
             uv_index=6.0,
             air_quality=25,
-            hourly_forecast=[],
-            daily_forecast=[],
+            hourly_forecast=hourly_forecast,
+            daily_forecast=daily_forecast,
             pollen_data={"tree": 2, "grass": 5, "ragweed": 1}
         )
 
@@ -242,51 +245,60 @@ class CalendarManager:
         self.config = config
         
     def fetch_events(self) -> List[EventData]:
-        """Fetch calendar events - placeholder for actual calendar integration"""
-        # This would integrate with Google Calendar API, CalDAV, or parse ICS files
-        # For now, returning mock data that matches your design
+        """Return demo calendar events with realistic weather integration"""
         
-        mock_events = [
+        # Demo events that match the mockup exactly
+        demo_events = [
             {
                 "time": "3:00 PM",
                 "title": "Team Meeting",
                 "location": "Conference Room B",
-                "is_outdoor": False
+                "is_outdoor": False,
+                "temp": 76,
+                "icon": "P.CLD",
+                "rain": 15
             },
             {
                 "time": "5:30 PM", 
                 "title": "Grocery Shopping",
                 "location": "King Soopers",
-                "is_outdoor": False
+                "is_outdoor": False,
+                "temp": 75,
+                "icon": "SUN",
+                "rain": 30
             },
             {
                 "time": "7:00 PM",
                 "title": "Dinner w/ Sarah",
                 "location": "Outdoor Patio",
-                "is_outdoor": True
+                "is_outdoor": True,
+                "temp": 73,
+                "icon": "CLOUD",
+                "rain": 35
             },
             {
                 "time": "8:30 PM",
                 "title": "Evening Walk",
                 "location": "City Park",
-                "is_outdoor": True
+                "is_outdoor": True,
+                "temp": 70,
+                "icon": "P.CLD",
+                "rain": 25
             }
         ]
         
-        return [self._create_event_data(event) for event in mock_events[:self.config.max_events_today]]
+        return [self._create_demo_event_data(event) for event in demo_events[:self.config.max_events_today]]
     
-    def _create_event_data(self, event_dict: Dict) -> EventData:
-        """Create EventData object with weather integration"""
-        # This would map event time to hourly weather forecast
-        # For now, using mock weather data
+    def _create_demo_event_data(self, event_dict: Dict) -> EventData:
+        """Create EventData object with pre-defined demo weather"""
         
         return EventData(
             time=event_dict["time"],
             title=event_dict["title"],
             location=event_dict["location"],
-            weather_temp=75.0,  # Would be from hourly forecast
-            weather_icon="P.CLD",
-            rain_chance=15,
+            weather_temp=event_dict["temp"],
+            weather_icon=event_dict["icon"],
+            rain_chance=event_dict["rain"],
             is_outdoor=event_dict["is_outdoor"]
         )
 
@@ -342,13 +354,13 @@ class DisplayRenderer:
         draw.line([0, 78, self.width, 78], fill=0, width=2)
         
         # Current weather (left section)
-        temp_text = f"{weather_data.current_temp:.0f}°F"
+        temp_text = f"{weather_data.current_temp:.0f}F"
         draw.text((20, 15), temp_text, font=self.font_xlarge, fill=0)
         
-        condition_text = f"{weather_data.condition_icon} {weather_data.condition} • {weather_data.location}"
+        condition_text = f"{weather_data.condition_icon} {weather_data.condition} - {weather_data.location}"
         draw.text((20, 40), condition_text, font=self.font_normal, fill=0)
         
-        draw.text((20, 55), weather_data.datetime_str, font=self.font_small, fill=0)
+        draw.text((20, 55), weather_data.datetime_str.replace("•", "-"), font=self.font_small, fill=0)
         
         # Metrics (right sections)
         metrics = [
@@ -394,10 +406,10 @@ class DisplayRenderer:
         draw.line([15, health_y, 285, health_y], fill=0, width=1)
         draw.text((15, health_y + 10), "Health Summary:", font=self.font_normal, fill=0)
         
-        pollen_text = f"Tree Pollen: Low ({weather_data.pollen_data['tree']}) • Grass: Medium ({weather_data.pollen_data['grass']})"
+        pollen_text = f"Tree Pollen: Low ({weather_data.pollen_data['tree']}) - Grass: Medium ({weather_data.pollen_data['grass']})"
         draw.text((15, health_y + 25), pollen_text, font=self.font_small, fill=0)
         
-        uv_text = f"UV High until 6 PM • Air Quality Good"
+        uv_text = f"UV High until 6 PM - Air Quality Good"
         draw.text((15, health_y + 40), uv_text, font=self.font_small, fill=0)
     
     def _render_event(self, draw: ImageDraw, x: int, y: int, event: EventData):
@@ -413,7 +425,7 @@ class DisplayRenderer:
         draw.text((x + 70, y + 20), event.location, font=self.font_small, fill=0)
         
         # Weather
-        weather_text = f"{event.weather_temp:.0f}°F {event.weather_icon}"
+        weather_text = f"{event.weather_temp:.0f}F {event.weather_icon}"
         draw.text((x + 200, y + 5), weather_text, font=self.font_normal, fill=0)
         rain_text = f"{event.rain_chance}% rain"
         draw.text((x + 200, y + 20), rain_text, font=self.font_small, fill=0)
@@ -442,9 +454,9 @@ class DisplayRenderer:
         draw.text((315, rec_y + 10), "Recommendations:", font=self.font_normal, fill=0)
         
         recommendations = [
-            "• Outdoor dining tonight: watch for rain",
-            "• Thursday: bring umbrella", 
-            "• Weekend trip: good weather"
+            "- Outdoor dining tonight: watch for rain",
+            "- Thursday: bring umbrella", 
+            "- Weekend trip: good weather"
         ]
         
         for i, rec in enumerate(recommendations):
